@@ -1,0 +1,5 @@
+tar xzf pulse_music.tar.gz
+cd pulse_music
+flutter create --org com.pulse --project-name pulse_music --platforms=android .
+flutter pub get
+flutter build apk --release --dart-define=JAMENDO_CLIENT_ID=<get_one_at_devportal.jamendo.com>
