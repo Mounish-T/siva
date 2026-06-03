@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Sivaraman M — AI-Native Full Stack Engineer. RAG pipelines, LLM systems, and production AI applications." />
+<title>Sivaraman M — AI-Native Engineer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ========================================================================
+   RESET & TOKENS
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #08080b;
+  --bg-elev: #0e0e12;
+  --ink: #f5f5f0;
+  --ink-mute: #8b8b8b;
+  --ink-dim: #5a5a5a;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.16);
+  --glass: rgba(20,20,24,0.55);
+  --accent: #d4f542;        /* electric lime */
+  --accent-warm: #ff7a45;   /* warm amber */
+  --accent-cool: #5eead4;   /* mint cyan */
+
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-body: 'Geist', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; }
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+::selection { background: var(--accent); color: #000; }
+
+a { color: inherit; text-decoration: none; }
+button { background: none; border: 0; font: inherit; color: inherit; cursor: none; }
+img { max-width: 100%; display: block; }
+
+/* ========================================================================
+   GLOBAL ATMOSPHERE: grain + animated orbs
+   ======================================================================== */
+.grain {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 100;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.85'/%3E%3C/svg%3E");
+}
+
+.bg-orbs {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(120px); opacity: 0.35;
+  animation: float 22s ease-in-out infinite;
+}
+.orb-1 { width: 520px; height: 520px; background: #1d4ed8; top: -10%; left: -10%; }
+.orb-2 { width: 460px; height: 460px; background: #d4f542; top: 40%; right: -8%; animation-delay: -7s; opacity: 0.18; }
+.orb-3 { width: 420px; height: 420px; background: #ff7a45; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.22; }
+
+@keyframes float {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(60px, -40px) scale(1.08); }
+  66% { transform: translate(-40px, 30px) scale(0.95); }
+}
+
+/* ========================================================================
+   CUSTOM CURSOR
+   ======================================================================== */
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  transition: width 0.25s var(--ease), height 0.25s var(--ease), background 0.25s;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(255,255,255,0.5);
+  transition: width 0.3s var(--ease), height 0.3s var(--ease), border-color 0.3s, background 0.3s;
+}
+.cursor-ring.hover {
+  width: 70px; height: 70px;
+  background: rgba(212, 245, 66, 0.12);
+  border-color: var(--accent);
+  mix-blend-mode: difference;
+}
+.cursor-dot.hover { background: var(--accent); }
+@media (max-width: 768px) {
+  .cursor-dot, .cursor-ring { display: none; }
+  html, body, button, a { cursor: auto; }
+}
+
+/* ========================================================================
+   LAYOUT
+   ======================================================================== */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ========================================================================
+   NAV
+   ======================================================================== */
+.nav {
+  position: fixed; top: 20px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex; align-items: center; gap: 28px;
+  padding: 10px 14px 10px 20px;
+  background: var(--glass);
+  border: 1px solid var(--line-strong);
+  border-radius: 100px;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  font-size: 14px;
+  animation: navIn 1.2s var(--ease-out) 0.3s both;
+}
+@keyframes navIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.nav-logo {
+  font-family: var(--font-display); font-style: italic;
+  font-size: 19px; padding-right: 6px;
+  border-right: 1px solid var(--line);
+  letter-spacing: -0.01em;
+}
+.nav-logo span { color: var(--accent); }
+.nav a:not(.nav-cta) {
+  color: var(--ink-mute);
+  transition: color 0.25s;
+  position: relative;
+}
+.nav a:not(.nav-cta):hover { color: var(--ink); }
+.nav-cta {
+  background: var(--accent);
+  color: #000;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-weight: 500;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s;
+}
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(212, 245, 66, 0.3);
+}
+@media (max-width: 768px) {
+  .nav { gap: 12px; font-size: 12px; padding: 8px 10px 8px 14px; }
+  .nav a:not(.nav-cta):not(.nav-logo) { display: none; }
+}
+
+/* ========================================================================
+   HERO
+   ======================================================================== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 140px 0 80px;
+  overflow: hidden;
+}
+.hero-spotlight {
+  position: absolute; inset: 0;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(212, 245, 66, 0.08), transparent 40%);
+  pointer-events: none;
+  transition: background 0.1s;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 8px 14px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 36px;
+}
+.eyebrow .pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(56px, 11vw, 168px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  margin-bottom: 28px;
+}
+.hero h1 .italic { font-style: italic; color: var(--ink-mute); }
+.hero h1 .lime { color: var(--accent); font-style: italic; }
+.hero h1 .reveal {
+  display: inline-block; overflow: hidden; vertical-align: top;
+}
+.hero h1 .reveal span {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: rise 1.1s var(--ease-out) forwards;
+}
+.hero h1 .r2 span { animation-delay: 0.15s; }
+.hero h1 .r3 span { animation-delay: 0.3s; }
+@keyframes rise { to { transform: translateY(0); } }
+
+.hero-sub {
+  font-size: clamp(15px, 1.4vw, 18px);
+  color: var(--ink-mute);
+  max-width: 580px;
+  margin-bottom: 48px;
+  line-height: 1.6;
+  opacity: 0; animation: fadeIn 1s var(--ease-out) 0.9s forwards;
+}
+.hero-sub strong { color: var(--ink); font-weight: 500; }
+@keyframes fadeIn { to { opacity: 1; } }
+
+.hero-actions {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  opacity: 0; animation: fadeIn 1s var(--ease-out) 1.1s forwards;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px;
+  border-radius: 100px;
+  font-weight: 500; font-size: 15px;
+  transition: transform 0.3s var(--ease), background 0.3s, color 0.3s;
+  position: relative;
+}
+.btn-primary {
+  background: var(--ink); color: #000;
+}
+.btn-primary:hover { background: var(--accent); }
+.btn-ghost {
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--ink); }
+.btn .arrow { transition: transform 0.3s var(--ease); }
+.btn:hover .arrow { transform: translate(3px, -3px); }
+
+/* Scrollticker / stats strip */
+.hero-meta {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: end;
+  padding: 0 32px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.2em;
+  opacity: 0; animation: fadeIn 1s var(--ease-out) 1.4s forwards;
+}
+.hero-meta .col { display: flex; flex-direction: column; gap: 4px; }
+.hero-meta .v { color: var(--ink); font-size: 13px; letter-spacing: 0.04em; }
+@media (max-width: 768px) {
+  .hero-meta { flex-direction: column; align-items: start; gap: 18px; position: static; padding: 60px 32px 0; }
+}
+
+/* ========================================================================
+   SECTION SCAFFOLD
+   ======================================================================== */
+section { padding: 140px 0; position: relative; }
+.section-tag {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-tag::before {
+  content: ''; width: 24px; height: 1px; background: var(--accent);
+}
+.section-title {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(40px, 6vw, 80px);
+  line-height: 1.0; letter-spacing: -0.02em;
+  margin-bottom: 60px;
+  max-width: 900px;
+}
+.section-title .italic { font-style: italic; color: var(--ink-mute); }
+.section-title .lime { color: var(--accent); font-style: italic; }
+
+/* Reveal-on-scroll utility */
+.reveal-up {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.reveal-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ========================================================================
+   ABOUT
+   ======================================================================== */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+@media (max-width: 900px) { .about-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.about-prose {
+  font-size: 20px; line-height: 1.55; color: var(--ink-mute);
+  font-weight: 300;
+}
+.about-prose p + p { margin-top: 22px; }
+.about-prose b { color: var(--ink); font-weight: 500; }
+.about-prose em {
+  font-family: var(--font-display); font-style: italic;
+  color: var(--accent); font-weight: 400; font-size: 1.1em;
+}
+
+.stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.stat {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px 22px;
+  backdrop-filter: blur(20px);
+  transition: border-color 0.3s, transform 0.3s var(--ease);
+  position: relative; overflow: hidden;
+}
+.stat:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+.stat::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(200px circle at var(--lx, 50%) var(--ly, 50%), rgba(212,245,66,0.08), transparent 50%);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.stat:hover::after { opacity: 1; }
+.stat .num {
+  font-family: var(--font-display); font-size: 44px;
+  line-height: 1; color: var(--ink);
+  margin-bottom: 8px; font-weight: 400;
+}
+.stat .num .unit { font-size: 22px; color: var(--ink-mute); }
+.stat .label {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.15em;
+}
+
+/* ========================================================================
+   MARQUEE — TECH STACK
+   ======================================================================== */
+.marquee-wrap {
+  padding: 80px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  background: var(--bg-elev);
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee {
+  display: flex; gap: 60px; width: max-content;
+  animation: scroll 40s linear infinite;
+}
+.marquee:hover { animation-play-state: paused; }
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 56px);
+  color: var(--ink-mute);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 60px;
+  transition: color 0.3s;
+}
+.marquee-item:hover { color: var(--accent); font-style: italic; }
+.marquee-item::after {
+  content: '✦'; color: var(--accent); font-size: 0.4em;
+}
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ========================================================================
+   PROJECTS — BENTO GRID
+   ======================================================================== */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(160px, auto);
+  gap: 16px;
+}
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 36px;
+  position: relative; overflow: hidden;
+  transition: transform 0.5s var(--ease), border-color 0.5s;
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 320px;
+}
+.card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(500px circle at var(--lx, 50%) var(--ly, 50%), rgba(212,245,66,0.07), transparent 40%);
+  opacity: 0; transition: opacity 0.6s; pointer-events: none;
+}
+.card:hover { border-color: var(--line-strong); transform: translateY(-4px); }
+.card:hover::before { opacity: 1; }
+
+.c-1 { grid-column: span 4; min-height: 460px; }
+.c-2 { grid-column: span 2; }
+.c-3 { grid-column: span 2; }
+.c-4 { grid-column: span 4; min-height: 380px; }
+@media (max-width: 900px) {
+  .bento { grid-template-columns: 1fr; }
+  .card, .c-1, .c-2, .c-3, .c-4 { grid-column: span 1; }
+}
+
+.card-tag {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.18em;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-tag .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.card h3 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin: 18px 0 12px;
+}
+.card h3 .italic { font-style: italic; color: var(--accent); }
+.card p {
+  color: var(--ink-mute); font-size: 15px; line-height: 1.55;
+  max-width: 520px;
+}
+.card .meta {
+  margin-top: 24px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.chip {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 5px 10px; border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line);
+  color: var(--ink-mute);
+}
+
+/* Featured project visual */
+.proj-visual {
+  position: absolute; right: -60px; bottom: -60px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, var(--accent), var(--accent-cool), var(--accent-warm), var(--accent));
+  filter: blur(60px); opacity: 0.25;
+  animation: rotate 18s linear infinite;
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+.proj-code {
+  font-family: var(--font-mono); font-size: 12px;
+  background: #050507;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 24px;
+  color: var(--ink-mute);
+  overflow: hidden;
+  position: relative;
+}
+.proj-code .k { color: var(--accent-cool); }
+.proj-code .s { color: var(--accent); }
+.proj-code .c { color: var(--ink-dim); }
+
+/* ========================================================================
+   EXPERIENCE TIMELINE
+   ======================================================================== */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+  border-left: 1px solid var(--line);
+}
+.tl-item { padding: 0 0 60px 32px; position: relative; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before {
+  content: ''; position: absolute; left: -38px; top: 4px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--accent);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 16px var(--accent);
+}
+.tl-date {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--accent); letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+.tl-role {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 32px; letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.tl-org {
+  color: var(--ink-mute); font-size: 15px;
+  margin-bottom: 18px;
+}
+.tl-org b { color: var(--ink); font-weight: 500; }
+.tl-list {
+  color: var(--ink-mute); font-size: 15px; line-height: 1.65;
+  max-width: 720px;
+}
+.tl-list li { list-style: none; padding-left: 18px; position: relative; margin-bottom: 8px; }
+.tl-list li::before {
+  content: '→'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono);
+}
+
+/* ========================================================================
+   ACHIEVEMENTS
+   ======================================================================== */
+.ach-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+@media (max-width: 900px) { .ach-grid { grid-template-columns: 1fr; } }
+.ach {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px; backdrop-filter: blur(20px);
+  transition: border-color 0.3s, transform 0.3s var(--ease);
+  position: relative; overflow: hidden;
+}
+.ach:hover { border-color: var(--accent); transform: translateY(-3px); }
+.ach .yr {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-mute); letter-spacing: 0.15em;
+  margin-bottom: 14px;
+}
+.ach h4 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 22px; line-height: 1.15;
+  margin-bottom: 8px;
+}
+.ach p { font-size: 14px; color: var(--ink-mute); line-height: 1.5; }
+
+/* ========================================================================
+   CONTACT
+   ======================================================================== */
+.contact {
+  text-align: center;
+  padding: 180px 0;
+  position: relative;
+}
+.contact h2 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(56px, 10vw, 140px);
+  line-height: 0.95; letter-spacing: -0.03em;
+  margin-bottom: 40px;
+}
+.contact h2 .italic { font-style: italic; color: var(--ink-mute); }
+.contact h2 .lime { color: var(--accent); font-style: italic; }
+.contact-email {
+  font-family: var(--font-display); font-style: italic;
+  font-size: clamp(24px, 3vw, 40px);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 8px;
+  transition: color 0.3s, border-color 0.3s, letter-spacing 0.3s;
+  display: inline-block;
+}
+.contact-email:hover { color: var(--accent); border-color: var(--accent); letter-spacing: 0.01em; }
+
+.contact-links {
+  margin-top: 60px;
+  display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--ink-mute); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.contact-links a { transition: color 0.3s; position: relative; }
+.contact-links a:hover { color: var(--accent); }
+
+/* ========================================================================
+   FOOTER
+   ======================================================================== */
+footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-dim); letter-spacing: 0.15em; text-transform: uppercase;
+}
+footer .dot { color: var(--accent); }
+@media (max-width: 600px) { footer { flex-direction: column; gap: 12px; } }
+
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav">
+  <a href="#" class="nav-logo">sivaraman<span>.</span></a>
+  <a href="#work">Work</a>
+  <a href="#about">About</a>
+  <a href="#experience">Experience</a>
+  <a href="#contact" class="nav-cta">Let's talk →</a>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="hero">
+  <div class="hero-spotlight" id="heroSpotlight"></div>
+  <div class="hero-grid"></div>
+
+  <div class="container hero-content">
+    <div class="eyebrow">
+      <span class="pulse"></span>
+      Available · Final-year · Open to AI/ML roles
+    </div>
+
+    <h1>
+      <span class="reveal r1"><span>Building&nbsp;</span></span>
+      <span class="reveal r2"><span class="italic">AI-native&nbsp;</span></span><br/>
+      <span class="reveal r3"><span>systems&nbsp;that&nbsp;<span class="lime">ship.</span></span></span>
+    </h1>
+
+    <p class="hero-sub">
+      I'm <strong>Sivaraman</strong> — a final-year engineer building <strong>LLM-integrated apps, RAG pipelines, and AI-native full-stack tools</strong>. I work across Python, LangChain, FastAPI, and GCP — from vector retrieval to structured outputs to production deployment.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#work" class="btn btn-primary">
+        See my work <span class="arrow">↗</span>
+      </a>
+      <a href="#contact" class="btn btn-ghost">
+        Get in touch <span class="arrow">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-meta">
+    <div class="col">
+      <div>CGPA</div>
+      <div class="v">9.10 / 10</div>
+    </div>
+    <div class="col">
+      <div>Global rank · URC '25</div>
+      <div class="v">15<span style="color:var(--ink-mute)">th</span></div>
+    </div>
+    <div class="col">
+      <div>Stack</div>
+      <div class="v">Python · LangChain · GCP</div>
+    </div>
+    <div class="col">
+      <div>Based in</div>
+      <div class="v">Chennai, IN</div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about">
+  <div class="container">
+    <div class="section-tag reveal-up">About · 01</div>
+    <h2 class="section-title reveal-up">
+      Engineer by training, <span class="italic">AI builder</span> <br/>by obsession.
+    </h2>
+
+    <div class="about-grid">
+      <div class="about-prose reveal-up">
+        <p>
+          Mechanical engineering background, <b>department topper at 9.10 CGPA</b>, and somewhere along the way I fell hard for AI. Now I spend my evenings shipping <em>production-grade RAG pipelines</em>, structured LLM outputs, and full-stack AI tools.
+        </p>
+        <p>
+          I led my college's rover team to <b>15th globally at URC '25</b> — engineering recognized by the President of India — and I've built everything from gamified NASA challenge apps to fraud detection on IBM WatsonX. I care about <em>responsible AI</em>, fast iteration, and clean handoffs between model and product.
+        </p>
+        <p>
+          Looking for a team where engineering rigor meets the AI-native shift.
+        </p>
+      </div>
+
+      <div class="stats reveal-up">
+        <div class="stat" data-tilt>
+          <div class="num">9.10<span class="unit">/10</span></div>
+          <div class="label">CGPA · Dept. Topper</div>
+        </div>
+        <div class="stat" data-tilt>
+          <div class="num">15<span class="unit">th</span></div>
+          <div class="label">Global · URC 2025</div>
+        </div>
+        <div class="stat" data-tilt>
+          <div class="num">+20<span class="unit">%</span></div>
+          <div class="label">Iteration velocity</div>
+        </div>
+        <div class="stat" data-tilt>
+          <div class="num">2K<span class="unit">+</span></div>
+          <div class="label">Students addressed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MARQUEE ===================== -->
+<div class="marquee-wrap">
+  <div class="marquee" id="marquee">
+    <div class="marquee-item">Python</div>
+    <div class="marquee-item">LangChain</div>
+    <div class="marquee-item">RAG Pipelines</div>
+    <div class="marquee-item">ChromaDB</div>
+    <div class="marquee-item">FastAPI</div>
+    <div class="marquee-item">Streamlit</div>
+    <div class="marquee-item">Vertex AI</div>
+    <div class="marquee-item">Pydantic</div>
+    <div class="marquee-item">Google Cloud</div>
+    <div class="marquee-item">Prompt Engineering</div>
+    <div class="marquee-item">MongoDB</div>
+    <div class="marquee-item">Flutter</div>
+  </div>
+</div>
+
+<!-- ===================== PROJECTS ===================== -->
+<section id="work">
+  <div class="container">
+    <div class="section-tag reveal-up">Selected work · 02</div>
+    <h2 class="section-title reveal-up">
+      Things I've <span class="italic">shipped</span>.
+    </h2>
+
+    <div class="bento">
+      <!-- Featured project -->
+      <article class="card c-1" data-tilt>
+        <div class="proj-visual"></div>
+        <div class="card-tag">
+          <span>Featured · 2025</span>
+          <span class="dot"></span>
+        </div>
+        <div>
+          <h3>PDF Q&amp;A <span class="italic">RAG Chatbot</span></h3>
+          <p>
+            Production-grade RAG pipeline: PDF ingestion, chunking, ChromaDB vector embeddings, semantic retrieval via LangChain — exposed as a FastAPI REST API with a Streamlit UI. Structured Pydantic outputs (answer + sources + confidence) cut hallucination risk and make every response auditable.
+          </p>
+          <div class="proj-code">
+            <span class="c"># answer with sources + confidence</span><br/>
+            <span class="k">class</span> <span class="s">Response</span>(BaseModel):<br/>
+            &nbsp;&nbsp;answer: <span class="s">str</span><br/>
+            &nbsp;&nbsp;sources: <span class="s">list[Source]</span><br/>
+            &nbsp;&nbsp;confidence: <span class="s">float</span>
+          </div>
+        </div>
+        <div class="meta">
+          <span class="chip">LangChain</span>
+          <span class="chip">ChromaDB</span>
+          <span class="chip">FastAPI</span>
+          <span class="chip">Pydantic</span>
+          <span class="chip">Gemini API</span>
+        </div>
+      </article>
+
+      <article class="card c-2" data-tilt>
+        <div class="card-tag">
+          <span>NASA · Team Lead</span>
+          <span class="dot"></span>
+        </div>
+        <div>
+          <h3><span class="italic">NeoVerse</span></h3>
+          <p>Gamified planet-exploration mobile app for NASA Space Apps Challenge. Cross-platform Flutter, NASA open APIs.</p>
+        </div>
+        <div class="meta">
+          <span class="chip">Flutter</span>
+          <span class="chip">NASA APIs</span>
+        </div>
+      </article>
+
+      <article class="card c-3" data-tilt>
+        <div class="card-tag">
+          <span>IBM Hackathon</span>
+          <span class="dot"></span>
+        </div>
+        <div>
+          <h3>Fraud <span class="italic">Detection</span></h3>
+          <p>Banking fraud detection on IBM WatsonX Orchestrate. Structured prompts, guardrails, fallback strategies.</p>
+        </div>
+        <div class="meta">
+          <span class="chip">WatsonX</span>
+          <span class="chip">Responsible AI</span>
+        </div>
+      </article>
+
+      <article class="card c-4" data-tilt>
+        <div class="card-tag">
+          <span>Published · ICASER 2024</span>
+          <span class="dot"></span>
+        </div>
+        <div>
+          <h3>SSEC — <span class="italic">Sensor-driven cleaning system</span></h3>
+          <p>
+            Semi-automated industrial cleaning rig. Cut water and energy consumption through iterative prototyping and sensor-based control logic. Co-authored review paper at the 12th International Conference on Advanced Science and Engineering Research.
+          </p>
+        </div>
+        <div class="meta">
+          <span class="chip">Systems Engineering</span>
+          <span class="chip">Sensor Control</span>
+          <span class="chip">Research</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXPERIENCE ===================== -->
+<section id="experience">
+  <div class="container">
+    <div class="section-tag reveal-up">Experience · 03</div>
+    <h2 class="section-title reveal-up">
+      Where I've <span class="italic">built things</span>.
+    </h2>
+
+    <div class="timeline">
+      <div class="tl-item reveal-up">
+        <div class="tl-date">FEB 2024 — PRESENT</div>
+        <div class="tl-role">Software &amp; Mechanical R&amp;D Engineer</div>
+        <div class="tl-org">AD-ASTRA Rover Team · <b>Sri Sairam Engineering College</b> · International Rover Challenge</div>
+        <ul class="tl-list">
+          <li>15th place globally at IRC-25 &amp; URC '25 Finalist — recognized by the President of India.</li>
+          <li>Designed the rocker-bogie suspension and wrote the Python/Pygame control code for real-time movement.</li>
+          <li>Improved team iteration velocity by 20% through agile sprints across software, mechanical, and electronics.</li>
+        </ul>
+      </div>
+
+      <div class="tl-item reveal-up">
+        <div class="tl-date">FEB 2024 — MAR 2024</div>
+        <div class="tl-role">Technical Intern — Manufacturing &amp; QA</div>
+        <div class="tl-org">Process Control Valves India Limited · <b>Chennai</b></div>
+        <ul class="tl-list">
+          <li>Improved inspection efficiency by 15% via structured defect-pattern analysis and QA reporting for ISO audit readiness.</li>
+          <li>Hands-on ERP exposure for defect and inventory tracking; built a documentation-first approach to quality.</li>
+        </ul>
+      </div>
+
+      <div class="tl-item reveal-up">
+        <div class="tl-date">OCT 2022 — MAY 2026</div>
+        <div class="tl-role">B.E. Mechanical Engineering</div>
+        <div class="tl-org">Sri Sairam Engineering College, Chennai · <b>CGPA 9.10 · Department Topper · Class Representative</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ACHIEVEMENTS ===================== -->
+<section>
+  <div class="container">
+    <div class="section-tag reveal-up">Recognition · 04</div>
+    <h2 class="section-title reveal-up">
+      A few <span class="italic">milestones</span>.
+    </h2>
+
+    <div class="ach-grid">
+      <div class="ach reveal-up">
+        <div class="yr">2025</div>
+        <h4>15th Globally — URC '25</h4>
+        <p>Recognized by the President of India for engineering excellence at the University Rover Challenge.</p>
+      </div>
+      <div class="ach reveal-up">
+        <div class="yr">UGC · MoE</div>
+        <h4>NEP SAARTHI Ambassador</h4>
+        <p>Selected as student ambassador for India's National Education Policy reforms.</p>
+      </div>
+      <div class="ach reveal-up">
+        <div class="yr">2024</div>
+        <h4>Winner — Solveathon 3.0</h4>
+        <p>1st Prize for an innovative solution addressing UN Sustainable Development Goals.</p>
+      </div>
+      <div class="ach reveal-up">
+        <div class="yr">2023 &amp; 2024</div>
+        <h4>Stars of Maatram</h4>
+        <p>Recognized two years running for academic excellence and community contribution.</p>
+      </div>
+      <div class="ach reveal-up">
+        <div class="yr">2024</div>
+        <h4>Finalist — India Design Week</h4>
+        <p>National recognition for CAD-based mechanical design.</p>
+      </div>
+      <div class="ach reveal-up">
+        <div class="yr">NASA</div>
+        <h4>Citizen Scientist</h4>
+        <p>Contributed to open data classification and planetary observation projects.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="section-tag reveal-up" style="justify-content:center;">Contact · 05</div>
+    <h2 class="reveal-up">
+      Let's build <br/><span class="italic">something</span> <span class="lime">good.</span>
+    </h2>
+    <a href="mailto:sivaraman.m12345@gmail.com" class="contact-email reveal-up">
+      sivaraman.m12345@gmail.com →
+    </a>
+
+    <div class="contact-links reveal-up">
+      <a href="https://github.com/Sivaraman12345" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://linkedin.com/in/siivaraman" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href="tel:+918925202427">+91 89252 02427</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container" style="display:flex; justify-content:space-between; width:100%;">
+    <span>© 2026 Sivaraman M <span class="dot">●</span> Chennai, IN</span>
+    <span>Crafted with care</span>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   CUSTOM CURSOR — smooth lerp follow
+   ========================================================= */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+let rx = mx, ry = my;
+
+window.addEventListener('pointermove', (e) => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+});
+
+function lerp() {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+  requestAnimationFrame(lerp);
+}
+lerp();
+
+document.querySelectorAll('a, button, .card, .stat, .ach, .marquee-item').forEach(el => {
+  el.addEventListener('pointerenter', () => { ring.classList.add('hover'); dot.classList.add('hover'); });
+  el.addEventListener('pointerleave', () => { ring.classList.remove('hover'); dot.classList.remove('hover'); });
+});
+
+/* =========================================================
+   HERO SPOTLIGHT — follows cursor
+   ========================================================= */
+const hero = document.getElementById('hero');
+const spotlight = document.getElementById('heroSpotlight');
+hero.addEventListener('pointermove', (e) => {
+  const rect = hero.getBoundingClientRect();
+  spotlight.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+  spotlight.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+});
+
+/* =========================================================
+   CARD GLOW — radial gradient follows cursor on cards
+   ========================================================= */
+document.querySelectorAll('.card, .stat').forEach(card => {
+  card.addEventListener('pointermove', (e) => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--lx', (e.clientX - rect.left) + 'px');
+    card.style.setProperty('--ly', (e.clientY - rect.top) + 'px');
+  });
+});
+
+/* =========================================================
+   3D TILT — subtle on cards
+   ========================================================= */
+document.querySelectorAll('[data-tilt]').forEach(el => {
+  el.addEventListener('pointermove', (e) => {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const dx = (e.clientX - cx) / rect.width;
+    const dy = (e.clientY - cy) / rect.height;
+    el.style.transform = `translateY(-4px) perspective(900px) rotateX(${-dy*4}deg) rotateY(${dx*4}deg)`;
+  });
+  el.addEventListener('pointerleave', () => {
+    el.style.transform = '';
+  });
+});
+
+/* =========================================================
+   MAGNETIC BUTTONS
+   ========================================================= */
+document.querySelectorAll('.btn, .nav-cta').forEach(btn => {
+  btn.addEventListener('pointermove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const dx = (e.clientX - cx) * 0.25;
+    const dy = (e.clientY - cy) * 0.25;
+    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
+});
+
+/* =========================================================
+   REVEAL ON SCROLL — IntersectionObserver
+   ========================================================= */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal-up').forEach(el => io.observe(el));
+
+/* =========================================================
+   MARQUEE — duplicate items for seamless loop
+   ========================================================= */
+const mq = document.getElementById('marquee');
+mq.innerHTML += mq.innerHTML;
+
+/* =========================================================
+   COUNT-UP for hero meta — light touch
+   ========================================================= */
+const heroNums = document.querySelectorAll('.hero-meta .v');
+// kept static for design — animation reserved for the bento stats
+
+</script>
+
+</body>
+</html>
